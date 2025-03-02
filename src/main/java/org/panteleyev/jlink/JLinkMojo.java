@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.jlink;
@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.panteleyev.jlink.CommandLineParameter.ADD_MODULES;
 import static org.panteleyev.jlink.CommandLineParameter.BIND_SERVICES;
 import static org.panteleyev.jlink.CommandLineParameter.ENDIAN;
+import static org.panteleyev.jlink.CommandLineParameter.GENERATE_CDS_ARCHIVE;
 import static org.panteleyev.jlink.CommandLineParameter.IGNORE_SIGNING_INFORMATION;
 import static org.panteleyev.jlink.CommandLineParameter.LAUNCHER;
 import static org.panteleyev.jlink.CommandLineParameter.LIMIT_MODULES;
@@ -104,6 +105,14 @@ public class JLinkMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false")
     private boolean ignoreSigningInformation;
+
+    /**
+     * <p>--generate-cds-archive</p>
+     *
+     * @since 1.1.0
+     */
+    @Parameter(defaultValue = "false")
+    private boolean generateCdsArchive;
 
     /**
      * <p>--limit-modules &lt;mod>[,&lt;mod>...]</p>
@@ -310,6 +319,7 @@ public class JLinkMojo extends AbstractMojo {
         addParameter(commandline, BIND_SERVICES, bindServices);
         addParameter(commandline, ENDIAN, endian);
         addParameter(commandline, IGNORE_SIGNING_INFORMATION, ignoreSigningInformation);
+        addParameter(commandline, GENERATE_CDS_ARCHIVE, generateCdsArchive);
         addParameter(commandline, NO_HEADER_FILES, noHeaderFiles);
         addParameter(commandline, NO_MAN_PAGES, noManPages);
         addMandatoryParameter(commandline, OUTPUT, output, false);
@@ -347,7 +357,8 @@ public class JLinkMojo extends AbstractMojo {
             String value
     ) throws MojoFailureException {
         if (value == null || value.isEmpty()) {
-            throw new MojoFailureException("Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
+            throw new MojoFailureException(
+                    "Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
         }
         addParameter(commandline, parameter, value);
     }
@@ -359,7 +370,8 @@ public class JLinkMojo extends AbstractMojo {
             boolean checkExistence
     ) throws MojoFailureException {
         if (value == null) {
-            throw new MojoFailureException("Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
+            throw new MojoFailureException(
+                    "Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
         }
         addParameter(commandline, parameter, value, checkExistence);
     }

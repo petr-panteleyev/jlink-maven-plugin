@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.jlink;
@@ -9,6 +9,7 @@ enum CommandLineParameter {
     BIND_SERVICES("--bind-services"),
     DISABLE_PLUGIN("--disable-plugin"),
     ENDIAN("--endian"),
+    GENERATE_CDS_ARCHIVE("--generate-cds-archive"),
     IGNORE_SIGNING_INFORMATION("--ignore-signing-information"),
     LAUNCHER("--launcher"),
     LIMIT_MODULES("--limit-modules"),
