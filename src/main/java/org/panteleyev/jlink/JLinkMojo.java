@@ -21,6 +21,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.panteleyev.jlink.CommandLineParameter.ADD_MODULES;
 import static org.panteleyev.jlink.CommandLineParameter.BIND_SERVICES;
@@ -326,6 +327,13 @@ public class JLinkMojo extends AbstractMojo {
         addParameter(commandline, STRIP_DEBUG, stripDebug);
         addParameter(commandline, VERBOSE, verbose);
 
+        if (modulePaths != null && !modulePaths.isEmpty()) {
+            List<String> pathStrings = modulePaths.stream()
+                    .map(File::getAbsolutePath)
+                    .collect(Collectors.toList());
+
+            addParameter(commandline, MODULE_PATH, String.join(File.pathSeparator, pathStrings));
+        }
 
         if (addModules != null && !addModules.isEmpty()) {
             addParameter(commandline, ADD_MODULES, String.join(",", addModules));
@@ -333,12 +341,6 @@ public class JLinkMojo extends AbstractMojo {
 
         if (limitModules != null && !limitModules.isEmpty()) {
             addParameter(commandline, LIMIT_MODULES, String.join(",", limitModules));
-        }
-
-        if (modulePaths != null) {
-            for (File modulePath : modulePaths) {
-                addParameter(commandline, MODULE_PATH, modulePath, true);
-            }
         }
 
         if (launchers != null) {
@@ -355,7 +357,8 @@ public class JLinkMojo extends AbstractMojo {
             Commandline commandline,
             @SuppressWarnings("SameParameterValue") CommandLineParameter parameter,
             String value
-    ) throws MojoFailureException {
+    ) throws MojoFailureException
+    {
         if (value == null || value.isEmpty()) {
             throw new MojoFailureException(
                     "Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
@@ -368,7 +371,8 @@ public class JLinkMojo extends AbstractMojo {
             @SuppressWarnings("SameParameterValue") CommandLineParameter parameter,
             File value,
             boolean checkExistence
-    ) throws MojoFailureException {
+    ) throws MojoFailureException
+    {
         if (value == null) {
             throw new MojoFailureException(
                     "Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
@@ -390,7 +394,8 @@ public class JLinkMojo extends AbstractMojo {
             Commandline commandline,
             CommandLineParameter parameter,
             String value
-    ) {
+    )
+    {
         if (value == null || value.isEmpty()) {
             return;
         }
@@ -405,7 +410,8 @@ public class JLinkMojo extends AbstractMojo {
             CommandLineParameter parameter,
             File value,
             boolean checkExistence
-    ) throws MojoFailureException {
+    ) throws MojoFailureException
+    {
         addParameter(
                 commandline,
                 parameter,
@@ -421,7 +427,8 @@ public class JLinkMojo extends AbstractMojo {
             File value,
             boolean checkExistence,
             boolean makeAbsolute
-    ) throws MojoFailureException {
+    ) throws MojoFailureException
+    {
         if (value == null) {
             return;
         }
@@ -448,7 +455,8 @@ public class JLinkMojo extends AbstractMojo {
             Commandline commandline,
             CommandLineParameter parameter,
             boolean value
-    ) {
+    )
+    {
         if (!value) {
             return;
         }
@@ -461,7 +469,8 @@ public class JLinkMojo extends AbstractMojo {
             Commandline commandline,
             CommandLineParameter parameter,
             EnumParameter value
-    ) {
+    )
+    {
         if (value == null) {
             return;
         }
