@@ -1,6 +1,6 @@
-## Usage
+# Usage
 
-### Finding jlink
+## Finding jlink
 
 Plugin searches for ```jlink``` executable using the following priority list:
 
@@ -9,43 +9,14 @@ tool = "jlink".
 
 2. ```java.home``` system property.
 
-### Configuration
+## Configuration
 
-#### Mandatory Parameters
+### Relative Path Resolution
 
-To enable various configuration approaches mandatory parameters are validated during plugin execution:
+Parameters of type ```File``` are resolved to absolute paths. To avoid unexpected results it is advised to supply
+absolute paths explicitly using Maven variables such as ```${project.basedir}```.
 
-* output
-
-#### Relative Path Resolution
-
-The following plugin parameters define directory or file location:
-
-* output
-* modulePath
- 
-If path is not absolute is will be resolved as relative to ```${project.basedir}```.
-
-#### Additional Launchers
-
-Additional launchers provide the opportunity to install alternative ways to start an application.
-
-_Example:_
-
-```xml
-<launchers>
-    <launcher>
-        <name>App1</name>
-        <file>src/resources/App1.properties</file>
-    </launcher>
-    <launcher>
-        <name>App2</name>
-        <file>src/resources/App2.properties</file>
-    </launcher>
-</launchers>
-```
-
-### Assembling Dependencies
+## Assembling Dependencies
 
 Before executing ```jlink``` all runtime dependencies should be copied into a single folder together with main
 application jar. This example shows how to do this via ```maven-dependency-plugin```.
@@ -56,7 +27,7 @@ application jar. This example shows how to do this via ```maven-dependency-plugi
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-            <outputDirectory>target/jmods</outputDirectory>
+            <outputDirectory>${project.build.directory}/jmods</outputDirectory>
         </configuration>
     </plugin>
     
@@ -72,7 +43,7 @@ application jar. This example shows how to do this via ```maven-dependency-plugi
                 </goals>
                 <configuration>
                     <includeScope>runtime</includeScope>
-                    <outputDirectory>target/jmods</outputDirectory>
+                    <outputDirectory>${project.build.directory}/jmods</outputDirectory>
                 </configuration>
             </execution>
         </executions>
@@ -83,9 +54,9 @@ application jar. This example shows how to do this via ```maven-dependency-plugi
         <artifactId>jlink-maven-plugin</artifactId>
         <configuration>
             <modulePaths>
-                <modulePath>target/jmods</modulePath>
+                <modulePath>${project.build.directory}/jmods</modulePath>
             </modulePaths>
-            <output>target/jlink</output>
+            <output>${project.build.directory}/jlink</output>
         </configuration>
     </plugin>
 </plugins>

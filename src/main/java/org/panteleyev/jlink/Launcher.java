@@ -1,5 +1,5 @@
 /*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.jlink;
@@ -7,16 +7,16 @@ package org.panteleyev.jlink;
 import org.apache.maven.plugin.MojoFailureException;
 
 public class Launcher {
-    private String name;
+    private String command;
     private String module;
     private String mainClass;
 
-    public String getName() {
-        return name;
+    public String getCommand() {
+        return command;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCommand(String command) {
+        this.command = command;
     }
 
     public String getModule() {
@@ -36,7 +36,7 @@ public class Launcher {
     }
 
     public void validate() throws MojoFailureException {
-        if (name == null || name.isEmpty()) {
+        if (command == null || command.isEmpty()) {
             throw new MojoFailureException("Launcher name cannot be null or empty");
         }
         if (module == null || module.isEmpty()) {
@@ -48,7 +48,7 @@ public class Launcher {
     }
 
     public String toString() {
-        StringBuilder b = new StringBuilder(name)
+        StringBuilder b = new StringBuilder(command)
                 .append("=")
                 .append(module);
         if (mainClass != null && !mainClass.isEmpty()) {

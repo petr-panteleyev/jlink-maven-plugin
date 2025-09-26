@@ -1,5 +1,5 @@
 /*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
+ Copyright © 2024-2025 Petr Panteleyev
  SPDX-License-Identifier: BSD-2-Clause
  */
 package org.panteleyev.jlink;
@@ -68,7 +68,16 @@ public class JLinkMojo extends AbstractMojo {
     private boolean skip;
 
     /**
-     * <p>--add-modules &lt;module>[,&lt;module>]</p>
+     * <p>--add-modules <i>mod</i>[,<i>mod</i>]</p>
+     * <p>Adds the named modules, <i>mod</i>, to the default set of root modules. The default set of root modules is
+     * empty.</p>
+     * <p>Example:
+     * <pre>
+     * &lt;addModules>
+     *     &lt;module>app.module&lt;/module>
+     * &lt;/addModules>
+     * </pre>
+     * </p>
      *
      * @since 1.0.0
      */
@@ -77,6 +86,7 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--bind-services</p>
+     * <p>Link service provider modules and their dependencies.</p>
      *
      * @since 1.0.0
      */
@@ -84,7 +94,9 @@ public class JLinkMojo extends AbstractMojo {
     private boolean bindServices;
 
     /**
-     * <p>--endian &lt;endian></p>
+     * <p>--endian {little|big}</p>
+     * <p>Specifies the byte order of the generated image. The default value is the format of your system's
+     * architecture.</p>
      * <p>Possible values:</p>
      * <table>
      *     <tr>
@@ -101,6 +113,8 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--ignore-signing-information</p>
+     * <p>Suppresses a fatal error when signed modular JARs are linked in the runtime image. The signature-related files
+     * of the signed modular JARs aren't copied to the runtime image.</p>
      *
      * @since 1.0.0
      */
@@ -109,6 +123,7 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--generate-cds-archive</p>
+     * <p>Generate CDS archive if the runtime image supports the CDS feature.</p>
      *
      * @since 1.1.0
      */
@@ -116,7 +131,9 @@ public class JLinkMojo extends AbstractMojo {
     private boolean generateCdsArchive;
 
     /**
-     * <p>--limit-modules &lt;mod>[,&lt;mod>...]</p>
+     * <p>--limit-modules <i>mod</i>[,<i>mod</i>...]</p>
+     * <p>Limits the universe of observable modules to those in the transitive closure of the named modules, <i>mod</i>,
+     * plus the main module, if any, plus any further modules specified in the <code>addModules</code> option.</p>
      * <p>Each module is specified by a separate &lt;limitModule> parameter.</p>
      * <p>Example:
      * <pre>
@@ -132,12 +149,17 @@ public class JLinkMojo extends AbstractMojo {
     private List<String> limitModules;
 
     /**
-     * <p>--module-path &lt;path></p>
+     * <p>--module-path <i>modulepath</i></p>
+     * <p>Specifies the module path.<br>
+     * If this option is not specified, then the default module path is <code>$JAVA_HOME/jmods</code>. This directory
+     * contains the <code>java.base</code> module and the other standard and JDK modules. If this option is specified
+     * but the <code>java.base</code> module cannot be resolved from it, then the jlink command appends
+     * <code>$JAVA_HOME/jmods</code> to the module path.</p>
      * <p>Each module path is specified by a separate &lt;modulePath> parameter.</p>
      * <p>Example:
      * <pre>
      * &lt;modulePaths>
-     *     &lt;modulePath>target/jmods&lt;/modulePath>
+     *     &lt;modulePath>>${project.build.directory}/jmods&lt;/modulePath>
      * &lt;/modulePaths>
      * </pre>
      * </p>
@@ -149,6 +171,7 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--no-header-files</p>
+     * <p>Excludes header files.</p>
      *
      * @since 1.0.0
      */
@@ -157,6 +180,7 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--no-man-pages</p>
+     * <p>Excludes man pages.</p>
      *
      * @since 1.0.0
      */
@@ -164,15 +188,17 @@ public class JLinkMojo extends AbstractMojo {
     private boolean noManPages;
 
     /**
-     * <p>--output &lt;path&gt;</p>
+     * <p>--output <i>path</i></p>
+     * <p>Specifies the location of the generated runtime image.</p>
      *
      * @since 1.0.0
      */
-    @Parameter
+    @Parameter(required = true)
     private File output;
 
     /**
      * <p>--strip-debug</p>
+     * <p>Strips debug information from the output image.</p>
      *
      * @since 1.0.0
      */
@@ -188,12 +214,12 @@ public class JLinkMojo extends AbstractMojo {
     private boolean verbose;
 
     /**
-     * <p>--launcher &lt;name>=&lt;module>[/&lt;mainClass>]</p>
-     * <p>Adds a launcher command of the given name for the module and the main class</p>
+     * <p>--launcher <i>command=module</i> or --launcher <i>command=module/main</i></p>
+     * <p>Specifies the launcher command name for the module or the command name for the module and main class.</p>
      * <pre>
      * &lt;launchers>
      *     &lt;launcher>
-     *         &lt;name>name-of-the-launcher&lt;/name>
+     *         &lt;command>command&lt;/name>
      *         &lt;module>module&lt;/module>
      *         &lt;mainClass>optionalMainClass&lt;/mainClass>
      *     &lt;/launcher>
@@ -353,25 +379,9 @@ public class JLinkMojo extends AbstractMojo {
         return commandline;
     }
 
-    private void addMandatoryParameter(
-            Commandline commandline,
-            @SuppressWarnings("SameParameterValue") CommandLineParameter parameter,
-            String value
-    ) throws MojoFailureException
-    {
-        if (value == null || value.isEmpty()) {
-            throw new MojoFailureException(
-                    "Mandatory parameter \"" + parameter.getName() + "\" cannot be null or empty");
-        }
-        addParameter(commandline, parameter, value);
-    }
-
-    private void addMandatoryParameter(
-            Commandline commandline,
-            @SuppressWarnings("SameParameterValue") CommandLineParameter parameter,
-            File value,
-            boolean checkExistence
-    ) throws MojoFailureException
+    @SuppressWarnings("SameParameterValue")
+    private void addMandatoryParameter(Commandline commandline, CommandLineParameter parameter, File value,
+            boolean checkExistence) throws MojoFailureException
     {
         if (value == null) {
             throw new MojoFailureException(
@@ -390,12 +400,7 @@ public class JLinkMojo extends AbstractMojo {
         commandline.createArg().setValue(value);
     }
 
-    private void addParameter(
-            Commandline commandline,
-            CommandLineParameter parameter,
-            String value
-    )
-    {
+    private void addParameter(Commandline commandline, CommandLineParameter parameter, String value) {
         if (value == null || value.isEmpty()) {
             return;
         }
@@ -405,12 +410,8 @@ public class JLinkMojo extends AbstractMojo {
         commandline.createArg().setValue(value);
     }
 
-    private void addParameter(
-            Commandline commandline,
-            CommandLineParameter parameter,
-            File value,
-            boolean checkExistence
-    ) throws MojoFailureException
+    private void addParameter(Commandline commandline, CommandLineParameter parameter, File value,
+            boolean checkExistence) throws MojoFailureException
     {
         addParameter(
                 commandline,
@@ -421,13 +422,9 @@ public class JLinkMojo extends AbstractMojo {
         );
     }
 
-    private void addParameter(
-            Commandline commandline,
-            CommandLineParameter parameter,
-            File value,
-            boolean checkExistence,
-            boolean makeAbsolute
-    ) throws MojoFailureException
+    @SuppressWarnings("SameParameterValue")
+    private void addParameter(Commandline commandline, CommandLineParameter parameter, File value,
+            boolean checkExistence, boolean makeAbsolute) throws MojoFailureException
     {
         if (value == null) {
             return;
@@ -442,21 +439,7 @@ public class JLinkMojo extends AbstractMojo {
         addParameter(commandline, parameter.getName(), path);
     }
 
-    private void addParameter(Commandline commandline, String name) {
-        if (name == null || name.isEmpty()) {
-            return;
-        }
-
-        getLog().info("  " + name);
-        commandline.createArg().setValue(name);
-    }
-
-    private void addParameter(
-            Commandline commandline,
-            CommandLineParameter parameter,
-            boolean value
-    )
-    {
+    private void addParameter(Commandline commandline, CommandLineParameter parameter, boolean value) {
         if (!value) {
             return;
         }
@@ -465,12 +448,8 @@ public class JLinkMojo extends AbstractMojo {
         commandline.createArg().setValue(parameter.getName());
     }
 
-    private void addParameter(
-            Commandline commandline,
-            CommandLineParameter parameter,
-            EnumParameter value
-    )
-    {
+    @SuppressWarnings("SameParameterValue")
+    private void addParameter(Commandline commandline, CommandLineParameter parameter, EnumParameter value) {
         if (value == null) {
             return;
         }
