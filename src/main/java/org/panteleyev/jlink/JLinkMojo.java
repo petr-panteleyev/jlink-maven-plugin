@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.jlink;
 
 import org.apache.maven.execution.MavenSession;
@@ -20,6 +18,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -113,8 +112,8 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--ignore-signing-information</p>
-     * <p>Suppresses a fatal error when signed modular JARs are linked in the runtime image. The signature-related files
-     * of the signed modular JARs aren't copied to the runtime image.</p>
+     * <p>Suppresses a fatal error when signed modular JARs are linked in the runtime image. The signature-related
+     * files of the signed modular JARs aren't copied to the runtime image.</p>
      *
      * @since 1.0.0
      */
@@ -132,7 +131,8 @@ public class JLinkMojo extends AbstractMojo {
 
     /**
      * <p>--limit-modules <i>mod</i>[,<i>mod</i>...]</p>
-     * <p>Limits the universe of observable modules to those in the transitive closure of the named modules, <i>mod</i>,
+     * <p>Limits the universe of observable modules to those in the transitive closure of the named modules,
+     * <i>mod</i>,
      * plus the main module, if any, plus any further modules specified in the <code>addModules</code> option.</p>
      * <p>Each module is specified by a separate &lt;limitModule> parameter.</p>
      * <p>Example:
@@ -355,6 +355,7 @@ public class JLinkMojo extends AbstractMojo {
 
         if (modulePaths != null && !modulePaths.isEmpty()) {
             List<String> pathStrings = modulePaths.stream()
+                    .filter(Objects::nonNull)
                     .map(File::getAbsolutePath)
                     .collect(Collectors.toList());
 
@@ -362,15 +363,22 @@ public class JLinkMojo extends AbstractMojo {
         }
 
         if (addModules != null && !addModules.isEmpty()) {
-            addParameter(commandline, ADD_MODULES, String.join(",", addModules));
+            addParameter(commandline, ADD_MODULES,
+                    addModules.stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(",")));
         }
 
         if (limitModules != null && !limitModules.isEmpty()) {
-            addParameter(commandline, LIMIT_MODULES, String.join(",", limitModules));
+            addParameter(commandline, LIMIT_MODULES,
+                    limitModules.stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(",")));
         }
 
         if (launchers != null) {
             for (Launcher launcher : launchers) {
+                if (launcher == null) continue;
                 launcher.validate();
                 addParameter(commandline, LAUNCHER, launcher.toString());
             }
