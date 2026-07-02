@@ -19,7 +19,7 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 ##### `<output>`
 
 Specifies the location of the generated runtime image. \
-**Type**: String \
+**Type**: File \
 **jlink**: --output _path_
 
 #### Optional Parameters
@@ -42,10 +42,8 @@ Link service provider modules and their dependencies. \
 **Default**: false \
 **jlink**: --bind-services
 
-
 ##### `<endian>`
 
---endian {little|big} \
 Specifies the byte order of the generated image. The default value is the format of your system's architecture. \
 Possible values:
 
@@ -54,22 +52,25 @@ Possible values:
 | LITTLE | little |
 | BIG    | big    |
 
+**jlink**: --endian {little|big}
+
 ##### `<generateCdsArchive>`
 
---generate-cds-archive \
 Generate CDS archive if the runtime image supports the CDS feature. \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+**jlink**: --generate-cds-archive
 
 ##### `<ignoreSigningInformation>`
 
---ignore-signing-information \
 Suppresses a fatal error when signed modular JARs are linked in the runtime image. The signature-related files of the 
 signed modular JARs aren't copied to the runtime image. \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+**jlink**: --ignore-signing-information
 
 ##### `<launchers>`
 
---launcher command=module or --launcher command=module/main \
 Specifies the launcher command name for the module or the command name for the module and main class.
 ```xml
 <launchers>
@@ -80,6 +81,8 @@ Specifies the launcher command name for the module or the command name for the m
     </launcher>
 </launchers>
 ```
+**Type**: `List<Launcher>` \
+**jlink**: --launcher command=module or --launcher command=module/main
 
 ##### `<limitModules>`
 
@@ -95,50 +98,59 @@ Each module is specified by a separate `<limitModule>` parameter.
 
 ##### `<modulePaths>`
 
---module-path _modulepath_ \
-Specifies the module path. \
+Specifies the module path.
+
 If this option is not specified, then the default module path is `$JAVA_HOME/jmods`. This directory contains the 
 java.base module and the other standard and JDK modules. If this option is specified but the java.base module cannot 
 be resolved from it, then the jlink command appends `$JAVA_HOME/jmods` to the module path. \
 Each module path is specified by a separate <modulePath> parameter.
+
 ```xml
 <modulePaths>
     <modulePath>>${project.build.directory}/jmods</modulePath>
 </modulePaths>
 ```
 
+**jlink**: --module-path _modulepath_
+
 ##### `<noHeaderFiles>`
 
---no-header-files \
 Excludes header files. \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+**jlink**: --no-header-files
 
 ##### `<noManPages>`
 
---no-man-pages \
 Excludes man pages. \
+**Type**: boolean \
 **Default**: false
+**jlink**: --no-man-pages
 
 ##### `<skip>`
 Skips plugin execution. \
+**Type**: boolean \
 **Default**: false
 
 ##### `<stripDebug>`
 
---strip-debug \
 Strips debug information from the output image. \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+jlink: --strip-debug
 
-`<stripNativeCommands>` : `boolean` \
---strip-native-commands \
+##### `<stripNativeCommands>`
+
 Excludes native commands (such as java/java.exe) from the image. \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+**jlink**: --strip-native-commands
 
----
+##### `<verbose>`
 
-`<verbose>` : boolean \
---verbose \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+jlink: --verbose
 
 ---
 
