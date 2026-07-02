@@ -18,29 +18,29 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 
 ##### `<output>`
 
---output _path_ \
-Specifies the location of the generated runtime image.
+Specifies the location of the generated runtime image. \
+**Type**: String \
+**jlink**: --output _path_
 
 #### Optional Parameters
 
-<table>
-</table>
-
 ##### `<addModules>`
 
---add-modules _mod[,mod]_ \
 Adds the named modules, mod, to the default set of root modules. The default set of root modules is empty. \
 ```xml
 <addModules>
     <module>app.module</module>
 </addModules>
 ```
+**Type**: `List<String>` \
+**jlink**: --add-modules _mod[,mod]_
 
 ##### `<bindServices>`
 
---bind-services \
 Link service provider modules and their dependencies. \
-**Default**: false
+**Type**: boolean \
+**Default**: false \
+**jlink**: --bind-services
 
 
 ##### `<endian>`
