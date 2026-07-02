@@ -28,9 +28,9 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 <td>
 Adds the named modules, mod, to the default set of root modules. The default set of root modules is empty.<br>
 <pre><code>
-<addModules>
-    <module>app.module</module>
-</addModules>
+&lt;addModules>
+    &lt;module>app.module&lt;/module>
+&lt;/addModules>
 </code></pre>
 </td>
 </tr>
