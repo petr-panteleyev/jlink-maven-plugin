@@ -6,7 +6,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -15,7 +14,10 @@ import org.apache.maven.shared.utils.cli.CommandLineUtils;
 import org.apache.maven.shared.utils.cli.Commandline;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +36,7 @@ import static org.panteleyev.jlink.CommandLineParameter.NO_HEADER_FILES;
 import static org.panteleyev.jlink.CommandLineParameter.NO_MAN_PAGES;
 import static org.panteleyev.jlink.CommandLineParameter.OUTPUT;
 import static org.panteleyev.jlink.CommandLineParameter.STRIP_DEBUG;
+import static org.panteleyev.jlink.CommandLineParameter.STRIP_NATIVE_COMMANDS;
 import static org.panteleyev.jlink.CommandLineParameter.VERBOSE;
 import static org.panteleyev.jlink.OsUtil.isWindows;
 import static org.panteleyev.jlink.StringUtil.isEmpty;
@@ -45,6 +48,8 @@ import static org.panteleyev.jlink.StringUtil.isNotEmpty;
  */
 @Mojo(name = JLinkMojo.GOAL, defaultPhase = LifecyclePhase.NONE)
 public class JLinkMojo extends AbstractMojo {
+    private static final Logger logger = LoggerFactory.getLogger(JLinkMojo.class);
+
     public static final String GOAL = "jlink";
 
     private static final String TOOLCHAIN = "jdk";
@@ -52,8 +57,7 @@ public class JLinkMojo extends AbstractMojo {
 
     private static final String DRY_RUN_PROPERTY = "jlink.dryRun";
 
-    @Component
-    private ToolchainManager toolchainManager;
+    private final ToolchainManager toolchainManager;
 
     @Parameter(defaultValue = "${session}", required = true, readonly = true)
     private MavenSession session;
@@ -206,6 +210,15 @@ public class JLinkMojo extends AbstractMojo {
     private boolean stripDebug;
 
     /**
+     * <p>--strip-native-commands</p>
+     * <p>Excludes native commands (such as java/java.exe) from the image.</p>
+     *
+     * @since 1.3.0
+     */
+    @Parameter(defaultValue = "false")
+    private boolean stripNativeCommands;
+
+    /**
      * --verbose
      *
      * @since 1.0.0
@@ -231,28 +244,33 @@ public class JLinkMojo extends AbstractMojo {
     @Parameter
     private List<Launcher> launchers;
 
+    @Inject
+    public JLinkMojo(ToolchainManager toolchainManager) {
+        this.toolchainManager = toolchainManager;
+    }
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
-            getLog().info("Skipping plugin execution");
+            logger.info("Skipping plugin execution");
             return;
         }
 
         Toolchain tc = toolchainManager.getToolchainFromBuildContext(TOOLCHAIN, session);
         if (tc != null) {
-            getLog().info("Toolchain in jpackage-maven-plugin: " + tc);
+            logger.info("Toolchain in jpackage-maven-plugin: {}", tc);
         }
 
         String executable = getJPackageExecutable(tc)
                 .orElseThrow(() -> new MojoExecutionException("Failed to find " + EXECUTABLE));
 
-        getLog().info("Using: " + executable);
+        logger.info("Using: {}", executable);
 
         Commandline commandLine = buildParameters();
         commandLine.setExecutable(executable.contains(" ") ? ("\"" + executable + "\"") : executable);
 
         boolean dryRun = "true".equalsIgnoreCase(System.getProperty(DRY_RUN_PROPERTY, "false"));
         if (dryRun) {
-            getLog().warn("Dry-run mode, not executing " + EXECUTABLE);
+            logger.warn("Dry-run mode, not executing " + EXECUTABLE);
         } else {
             try {
                 execute(commandLine);
@@ -267,7 +285,7 @@ public class JLinkMojo extends AbstractMojo {
             return Optional.empty();
         }
 
-        getLog().debug("Looking for " + EXECUTABLE + " in " + jdkHome);
+        logger.debug("Looking for " + EXECUTABLE + " in {}", jdkHome);
 
         String executable = jdkHome + File.separator + "bin" + File.separator + EXECUTABLE;
         if (isWindows()) {
@@ -277,7 +295,7 @@ public class JLinkMojo extends AbstractMojo {
         if (new File(executable).exists()) {
             return Optional.of(executable);
         } else {
-            getLog().warn("File " + executable + " does not exist");
+            logger.warn("File {} does not exist", executable);
             return Optional.empty();
         }
     }
@@ -289,7 +307,7 @@ public class JLinkMojo extends AbstractMojo {
 
         String executable = tc.findTool(EXECUTABLE);
         if (executable == null) {
-            getLog().warn(EXECUTABLE + " is not part of configured toolchain");
+            logger.warn(EXECUTABLE + " is not part of configured toolchain");
         }
 
         return Optional.ofNullable(executable);
@@ -313,7 +331,7 @@ public class JLinkMojo extends AbstractMojo {
             if (exitCode != 0) {
                 if (isNotEmpty(output)) {
                     for (String line : output.split("\n")) {
-                        getLog().error(line);
+                        logger.error(line);
                     }
                 }
 
@@ -330,7 +348,7 @@ public class JLinkMojo extends AbstractMojo {
             } else {
                 if (isNotEmpty(output)) {
                     for (String outputLine : output.split("\n")) {
-                        getLog().info(outputLine);
+                        logger.info(outputLine);
                     }
                 }
             }
@@ -340,7 +358,7 @@ public class JLinkMojo extends AbstractMojo {
     }
 
     private Commandline buildParameters() throws MojoFailureException {
-        getLog().info("jlink options:");
+        logger.info("jlink options:");
 
         Commandline commandline = new Commandline();
         addParameter(commandline, BIND_SERVICES, bindServices);
@@ -351,6 +369,7 @@ public class JLinkMojo extends AbstractMojo {
         addParameter(commandline, NO_MAN_PAGES, noManPages);
         addMandatoryParameter(commandline, OUTPUT, output, false);
         addParameter(commandline, STRIP_DEBUG, stripDebug);
+        addParameter(commandline, STRIP_NATIVE_COMMANDS, stripNativeCommands);
         addParameter(commandline, VERBOSE, verbose);
 
         if (modulePaths != null && !modulePaths.isEmpty()) {
@@ -399,21 +418,17 @@ public class JLinkMojo extends AbstractMojo {
     }
 
     private void addParameter(Commandline commandline, String name, String value) {
-        if (value == null || value.isEmpty()) {
-            return;
-        }
+        if (value == null || value.isEmpty()) return;
 
-        getLog().info("  " + name + " " + value);
+        logger.info("  {} {}", name, value);
         commandline.createArg().setValue(name);
         commandline.createArg().setValue(value);
     }
 
     private void addParameter(Commandline commandline, CommandLineParameter parameter, String value) {
-        if (value == null || value.isEmpty()) {
-            return;
-        }
+        if (value == null || value.isEmpty())  return;
 
-        getLog().info("  " + parameter.getName() + " " + value);
+        logger.info("  {} {}", parameter.getName(), value);
         commandline.createArg().setValue(parameter.getName());
         commandline.createArg().setValue(value);
     }
@@ -434,9 +449,7 @@ public class JLinkMojo extends AbstractMojo {
     private void addParameter(Commandline commandline, CommandLineParameter parameter, File value,
             boolean checkExistence, boolean makeAbsolute) throws MojoFailureException
     {
-        if (value == null) {
-            return;
-        }
+        if (value == null) return;
 
         String path = makeAbsolute ? value.getAbsolutePath() : value.getPath();
 
@@ -448,20 +461,16 @@ public class JLinkMojo extends AbstractMojo {
     }
 
     private void addParameter(Commandline commandline, CommandLineParameter parameter, boolean value) {
-        if (!value) {
-            return;
-        }
+        if (!value) return;
 
-        getLog().info("  " + parameter.getName());
+        logger.info("  {}", parameter.getName());
         commandline.createArg().setValue(parameter.getName());
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void addParameter(Commandline commandline, CommandLineParameter parameter, EnumParameter value) {
-        if (value == null) {
-            return;
-        }
+    private void addParameter(Commandline commandline, CommandLineParameter parameter, Enum<?> value) {
+        if (value == null) return;
 
-        addParameter(commandline, parameter, value.getValue());
+        addParameter(commandline, parameter, value.toString());
     }
 }

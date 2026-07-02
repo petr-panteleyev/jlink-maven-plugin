@@ -1,7 +1,5 @@
-/*
- Copyright © 2024-2025 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.jlink;
 
 enum CommandLineParameter {
@@ -18,6 +16,7 @@ enum CommandLineParameter {
     NO_MAN_PAGES("--no-man-pages"),
     OUTPUT("--output"),
     STRIP_DEBUG("--strip-debug"),
+    STRIP_NATIVE_COMMANDS("--strip-native-commands"),
     VERBOSE("--verbose");
 
     private final String name;

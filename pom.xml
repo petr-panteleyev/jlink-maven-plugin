@@ -8,7 +8,7 @@
 
     <groupId>org.panteleyev</groupId>
     <artifactId>jlink-maven-plugin</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0</version>
     <packaging>maven-plugin</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -37,18 +37,84 @@
         <url>https://github.com/petr-panteleyev/jlink-maven-plugin/tree/master</url>
     </scm>
 
+    <profiles>
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${nexusStagingMavenPlugin}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <repositories>
+                <repository>
+                    <id>maven_central</id>
+                    <name>Maven Central</name>
+                    <url>https://repo.maven.apache.org/maven2/</url>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>private</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-ssh</artifactId>
+                        <version>${mavenWagonSshPluginVersion}</version>
+                        <extensions>true</extensions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.github.mwiede</groupId>
+                                <artifactId>jsch</artifactId>
+                                <version>${jSchVersion}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.maven.wagon</groupId>
+                                <artifactId>wagon-ssh</artifactId>
+                                <version>${mavenWagonSshPluginVersion}</version>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>com.jcraft</groupId>
+                                        <artifactId>jsch</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>panteleyev.org</id>
+                    <url>${env.MAVEN_DEPLOY_URL}</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <!-- Dependencies -->
-        <mavenCoreVersion>3.9.11</mavenCoreVersion>
-        <mavenPluginApiVersion>3.9.11</mavenPluginApiVersion>
+        <mavenCoreVersion>3.9.16</mavenCoreVersion>
+        <mavenPluginApiVersion>3.9.16</mavenPluginApiVersion>
         <mavenSharedUtilsVersion>3.4.2</mavenSharedUtilsVersion>
-        <jUnitVersion>5.12.1</jUnitVersion>
+        <jSchVersion>2.28.3</jSchVersion>
+        <jUnitVersion>5.14.4</jUnitVersion>
         <!-- Plugins -->
         <mavenToolchainPluginVersion>3.2.0</mavenToolchainPluginVersion>
-        <mavenCompilerPluginVersion>3.14.1</mavenCompilerPluginVersion>
+        <mavenCompilerPluginVersion>3.15.0</mavenCompilerPluginVersion>
         <mavenSurefirePluginVersion>3.5.4</mavenSurefirePluginVersion>
         <mavenPluginPluginVersion>3.15.2</mavenPluginPluginVersion>
         <mavenJavadocPluginVersion>3.12.0</mavenJavadocPluginVersion>
@@ -56,7 +122,8 @@
         <mavenProjectInfoReportsPluginVersion>3.5.0</mavenProjectInfoReportsPluginVersion>
         <mavenSourcePluginVersion>3.4.0</mavenSourcePluginVersion>
         <mavenGpgPluginVersion>3.2.8</mavenGpgPluginVersion>
-        <nexusStagingMavenPlugin>0.9.0</nexusStagingMavenPlugin>
+        <mavenWagonSshPluginVersion>3.5.3</mavenWagonSshPluginVersion>
+        <nexusStagingMavenPlugin>0.10.0</nexusStagingMavenPlugin>
     </properties>
 
     <dependencies>
@@ -215,8 +282,8 @@
                 <configuration>
                     <requirementsHistories>
                         <requirementsHistory>
-                            <version>1.2.1</version>
-                            <maven>3.9.12</maven>
+                            <version>1.3.0</version>
+                            <maven>3.9.16</maven>
                             <jdk>8</jdk>
                         </requirementsHistory>
                         <requirementsHistory>
