@@ -1,7 +1,5 @@
-/*
- Copyright © 2024 Petr Panteleyev <petr@panteleyev.org>
- SPDX-License-Identifier: BSD-2-Clause
- */
+// Copyright © 2024-2026 Petr Panteleyev
+// SPDX-License-Identifier: BSD-2-Clause
 package org.panteleyev.jlink;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.panteleyev.jlink.OsUtil.isWindows;
 import static org.panteleyev.jlink.StringUtil.escape;
 
-public class TestStringUtil {
+public class StringUtilTest {
 
     private static List<Arguments> dataProvider() {
         if (isWindows()) {
