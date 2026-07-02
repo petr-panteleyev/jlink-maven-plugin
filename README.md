@@ -16,14 +16,14 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 
 #### Required Parameters
 
-##### `<output>` : `File`
+##### `<output>`
 
 --output _path_ \
 Specifies the location of the generated runtime image.
 
 #### Optional Parameters
 
-##### `<addModules>` : `List<String>`
+##### `<addModules>`
 
 --add-modules _mod[,mod]_ \
 Adds the named modules, mod, to the default set of root modules. The default set of root modules is empty. \
@@ -33,14 +33,15 @@ Adds the named modules, mod, to the default set of root modules. The default set
 </addModules>
 ```
 
-##### `<bindServices>` : boolean
+##### `<bindServices>`
 
 --bind-services \
 Link service provider modules and their dependencies. \
 **Default**: false
 
----
-`<endian>` : `Endian` \
+
+##### `<endian>`
+
 --endian {little|big} \
 Specifies the byte order of the generated image. The default value is the format of your system's architecture. \
 Possible values:
@@ -50,16 +51,14 @@ Possible values:
 | LITTLE | little |
 | BIG    | big    |
 
----
+##### `<generateCdsArchive>`
 
-`<generateCdsArchive>` : `boolean` \
 --generate-cds-archive \
 Generate CDS archive if the runtime image supports the CDS feature. \
 **Default**: false
 
----
+##### `<ignoreSigningInformation>`
 
-`<ignoreSigningInformation>` : `boolean` \
 --ignore-signing-information \
 Suppresses a fatal error when signed modular JARs are linked in the runtime image. The signature-related files of the 
 signed modular JARs aren't copied to the runtime image. \
