@@ -14,6 +14,30 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 
 ### jlink:jlink
 
+<table>
+<tr>
+<th>Parameter</th><th>jlink Option</th><th>Description</th>
+</tr>
+<tr><th>Required</th></tr>
+<tr><td>&lt;output></td><td>--output <i>path</i></td><td>Specifies the location of the generated runtime image.</td></tr>
+<tr><th>Optional</th></tr>
+
+<tr>
+<td>&lt;addModules></td>
+<td>--add-modules <i>mod[,mod]</i></td>
+<td>
+Adds the named modules, mod, to the default set of root modules. The default set of root modules is empty.<br>
+<pre><code>
+<addModules>
+    <module>app.module</module>
+</addModules>
+</code></pre>
+</td>
+</tr>
+
+</table>
+
+
 #### Required Parameters
 
 ##### `<output>`
@@ -22,6 +46,9 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 Specifies the location of the generated runtime image.
 
 #### Optional Parameters
+
+<table>
+</table>
 
 ##### `<addModules>`
 
@@ -64,9 +91,8 @@ Suppresses a fatal error when signed modular JARs are linked in the runtime imag
 signed modular JARs aren't copied to the runtime image. \
 **Default**: false
 
----
+##### `<launchers>`
 
-`<launchers>` : `List<Launcher>` \
 --launcher command=module or --launcher command=module/main \
 Specifies the launcher command name for the module or the command name for the module and main class.
 ```xml
@@ -79,9 +105,8 @@ Specifies the launcher command name for the module or the command name for the m
 </launchers>
 ```
 
----
+##### `<limitModules>`
 
-`<limitModules>` : `List<String>` \
 --limit-modules mod[,mod...] \
 Limits the universe of observable modules to those in the transitive closure of the named modules, mod, plus the main 
 module, if any, plus any further modules specified in the addModules option. \
@@ -92,9 +117,8 @@ Each module is specified by a separate `<limitModule>` parameter.
 </limitModules>
 ```
 
----
+##### `<modulePaths>`
 
-`<modulePaths>` : `List<File>` \
 --module-path _modulepath_ \
 Specifies the module path. \
 If this option is not specified, then the default module path is `$JAVA_HOME/jmods`. This directory contains the 
@@ -107,34 +131,27 @@ Each module path is specified by a separate <modulePath> parameter.
 </modulePaths>
 ```
 
----
+##### `<noHeaderFiles>`
 
-`<noHeaderFiles>` :	boolean \
 --no-header-files \
 Excludes header files.
 **Default**: false
 
----
+##### `<noManPages>`
 
-`<noManPages>` : `boolean` \
 --no-man-pages \
 Excludes man pages. \
 **Default**: false
 
----
-
-`<skip>` :boolean \
+##### `<skip>`
 Skips plugin execution. \
 **Default**: false
 
----
+##### `<stripDebug>`
 
-`<stripDebug>` : `boolean` \
 --strip-debug \
 Strips debug information from the output image. \
 **Default**: false
-
----
 
 `<stripNativeCommands>` : `boolean` \
 --strip-native-commands \
