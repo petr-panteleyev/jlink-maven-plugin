@@ -17,12 +17,14 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 #### Required Parameters
 
 ##### `<output>` : `File`
+
 --output _path_ \
 Specifies the location of the generated runtime image.
 
 #### Optional Parameters
 
 ##### `<addModules>` : `List<String>`
+
 --add-modules _mod[,mod]_ \
 Adds the named modules, mod, to the default set of root modules. The default set of root modules is empty. \
 ```xml
@@ -31,9 +33,8 @@ Adds the named modules, mod, to the default set of root modules. The default set
 </addModules>
 ```
 
----
+##### `<bindServices>` : boolean
 
-`<bindServices>` : boolean \
 --bind-services \
 Link service provider modules and their dependencies. \
 **Default**: false
