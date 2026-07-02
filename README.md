@@ -14,30 +14,6 @@ Maven plugin for [jlink](https://docs.oracle.com/en/java/javase/25/docs/specs/ma
 
 ### jlink:jlink
 
-<table>
-<tr>
-<th>Parameter</th><th>jlink Option</th><th>Description</th>
-</tr>
-<tr><th>Required</th></tr>
-<tr><td>&lt;output></td><td>--output <i>path</i></td><td>Specifies the location of the generated runtime image.</td></tr>
-<tr><th>Optional</th></tr>
-
-<tr>
-<td>&lt;addModules></td>
-<td>--add-modules <i>mod[,mod]</i></td>
-<td>
-Adds the named modules, mod, to the default set of root modules. The default set of root modules is empty.<br>
-<pre><code>
-&lt;addModules>
-    &lt;module>app.module&lt;/module>
-&lt;/addModules>
-</code></pre>
-</td>
-</tr>
-
-</table>
-
-
 #### Required Parameters
 
 ##### `<output>`
@@ -134,7 +110,7 @@ Each module path is specified by a separate <modulePath> parameter.
 ##### `<noHeaderFiles>`
 
 --no-header-files \
-Excludes header files.
+Excludes header files. \
 **Default**: false
 
 ##### `<noManPages>`
